@@ -1,0 +1,7 @@
+# The deployed demo API (api.py). requirements.txt is the original full set (Streamlit dashboard, eval, signer).
+fastapi
+uvicorn
+httpx
+openai
+cryptography
+python-dotenv
