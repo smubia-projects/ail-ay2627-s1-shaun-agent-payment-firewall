@@ -9,6 +9,27 @@ is checked by deterministic rules and an LLM intent checker before a separate si
 
 **Track:** Safety by Design · **Live demo:** https://ai-lodge-agent-payment-firewall.streamlit.app/ · **Demo video:** _<link>_
 
+> **AI Lodge showcase.** This fork is deployed as a public demo by the SMU BIA AI Lodge. What is deployed:
+>
+> * **API** (`api.py`): a stateless FastAPI on Google Cloud Run. `GET /api/overview` serves the evaluation results
+>   (`results_haiku.json`) and the test cases; `POST /api/attack` runs one attack live, twice (the agent alone, then
+>   behind the firewall). The test shops (`merchant.py`) run in the same process: each run gets **its own ledger**
+>   (an `X-Ledger` header on an in-process client) instead of the shared global `LEDGER`, so visitors never see
+>   each other's payments.
+> * **UI** (`web/`): a Vite + React page on Vercel with the dashboard's four views (Results, Try an attack, How it
+>   works, Audit trail), replacing the Streamlit app (`app.py`, kept in the repo, not deployed).
+>
+> Not deployed (kept in the repo): `app.py`, `onchain_proof.py`, `testnet_settle.py`, `phone_approver.py`,
+> `signer_service.py` and the eval / calibration / red-team tooling. The Docker image is an allowlist (`.dockerignore`).
+> The live runner denies step-ups (there is no human to approve) and each agent gets a small step budget
+> (`AGENT_MAX_STEPS`, default 6). Every live attack goes through the AI Lodge rate limit, which replaces the
+> dashboard's per-session and per-day run caps.
+>
+> **Live outcomes vary by model and run.** The headline table below is the committed evaluation (Claude Haiku as
+> agent and judge, full step budget). A live attack on the demo uses whatever models the deployment sets
+> (`AGENT_MODEL_NAME`, `JUDGE_MODEL_NAME`) and may not reproduce it: an agent may refuse a scam on its own, or the
+> judge may vote differently.
+
 ### Results at a glance
 
 33 scam attempts against the same AI agent (Claude Haiku), graded on money that actually left the wallet:
@@ -319,6 +340,17 @@ Optional: test a different agent model while the intent checker stays on Claude 
 intent checker is off, which is useful for checking the plumbing.
 
 On Streamlit Community Cloud, put the three `LLM_*` values in the app's **Secrets** settings. Never commit keys.
+
+### Showcase demo (API + web), locally
+
+```bash
+pip install -r requirements-api.txt
+cp .env.example .env              # API_KEY, API_BASE_URL, AGENT_MODEL_NAME, JUDGE_MODEL_NAME (LLM_* still work)
+uvicorn api:app --reload --port 8000
+cd web && npm install && npm run dev   # http://localhost:5173, API from VITE_API_BASE (default http://localhost:8000)
+```
+
+With no key, the API runs the scripted agent and the AI check is off, as the dashboard did.
 
 ## Hardening: calibrated AI check and isolated signer
 
