@@ -1,22 +1,28 @@
-"""Thin OpenAI-compatible client. Works with Anthropic, Groq, OpenAI, OpenRouter, Gemini, etc.
+"""Thin OpenAI-compatible client. Works with Anthropic, Groq, OpenAI, OpenRouter, Gemini, apiyi, etc.
 
-Default settings: LLM_API_KEY, LLM_BASE_URL, LLM_MODEL.
+Default settings: API_KEY, API_BASE_URL, MODEL_NAME (AI Lodge names), else the original LLM_API_KEY,
+LLM_BASE_URL, LLM_MODEL. API_BASE_URL defaults to https://api.apiyi.com/v1 when any key is set.
 Per-role overrides (so the agent and the intent judge can use different models):
-  AGENT_API_KEY / AGENT_BASE_URL / AGENT_MODEL   -> the agent being protected
-  JUDGE_API_KEY / JUDGE_BASE_URL / JUDGE_MODEL   -> the firewall's intent judge
-Any override not set falls back to the LLM_* value.
+  AGENT_API_KEY / AGENT_BASE_URL / AGENT_MODEL_NAME (or AGENT_MODEL)   -> the agent being protected
+  JUDGE_API_KEY / JUDGE_BASE_URL / JUDGE_MODEL_NAME (or JUDGE_MODEL)   -> the firewall's intent judge
+Any override not set falls back to the default value.
 Optional, per role only (no LLM_* fallback, so it never leaks to another provider):
   AGENT_REASONING_EFFORT=none   e.g. for OpenAI reasoning models, which refuse tool calls on
                                 /v1/chat/completions unless reasoning is off"""
 import os
 
 
+NEW_NAMES = {"API_KEY": "API_KEY", "BASE_URL": "API_BASE_URL", "MODEL": "MODEL_NAME"}
+DEFAULT_BASE_URL = "https://api.apiyi.com/v1"
+
+
 def _get(role, name, default=None):
     if role:
-        v = os.environ.get(f"{role.upper()}_{name}")
-        if v:
-            return v
-    return os.environ.get(f"LLM_{name}", default)
+        for key in ([f"{role.upper()}_MODEL_NAME"] if name == "MODEL" else []) + [f"{role.upper()}_{name}"]:
+            v = os.environ.get(key)
+            if v:
+                return v
+    return os.environ.get(NEW_NAMES[name]) or os.environ.get(f"LLM_{name}") or default
 
 
 def available(role=None):
@@ -25,11 +31,11 @@ def available(role=None):
 
 def client(role=None):
     from openai import OpenAI
-    return OpenAI(api_key=_get(role, "API_KEY"), base_url=_get(role, "BASE_URL"))
+    return OpenAI(api_key=_get(role, "API_KEY"), base_url=_get(role, "BASE_URL", DEFAULT_BASE_URL))
 
 
 def model(role=None):
-    return _get(role, "MODEL", "llama-3.3-70b-versatile")
+    return _get(role, "MODEL", "claude-haiku-4-5-20251001")
 
 
 def extra(role):
