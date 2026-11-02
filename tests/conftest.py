@@ -17,6 +17,7 @@ def offline(monkeypatch, tmp_path):
     for k in list(os.environ):
         if k.endswith("_API_KEY") and k.split("_")[0] in ("LLM", "AGENT", "JUDGE"):
             monkeypatch.delenv(k, raising=False)
+    monkeypatch.delenv("API_KEY", raising=False)  # the AI Lodge default-key name (llm.py reads it first)
     monkeypatch.chdir(ROOT)
     import gateway
     monkeypatch.setattr(gateway, "LOG_PATH", str(tmp_path / "logs.jsonl"))
