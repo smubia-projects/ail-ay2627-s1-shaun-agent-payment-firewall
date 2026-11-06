@@ -34,8 +34,14 @@ def client(role=None):
     return OpenAI(api_key=_get(role, "API_KEY"), base_url=_get(role, "BASE_URL", DEFAULT_BASE_URL))
 
 
+# Club default for text is deepseek-v4-flash. The intent judge keeps Claude Haiku: its thresholds were calibrated on
+# Haiku (calibration.json), so another judge model would change the firewall's evaluated verdicts.
+DEFAULT_MODEL = "deepseek-v4-flash"
+DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001"
+
+
 def model(role=None):
-    return _get(role, "MODEL", "claude-haiku-4-5-20251001")
+    return _get(role, "MODEL", DEFAULT_JUDGE_MODEL if role == "judge" else DEFAULT_MODEL)
 
 
 def extra(role):
