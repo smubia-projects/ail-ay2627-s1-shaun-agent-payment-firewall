@@ -12,7 +12,8 @@ money moves. Evaluated against a synthetic attack suite. Read README.md for the 
 - `signer_service.py`: isolated signer process (port 8403). Re-checks user-signed mandate, own registry (`signer_registry.json`), own ledger, human-signed approvals.
 - `keys.py` (Ed25519 keys in `.keys/`), `approver.py` (user mandate signing + human approval), `attack_signer.py` (compromised-gateway red team).
 - `agent.py`: `LLMAgent` (tool loop, `guardrails=True` = prompt-only mode, retries transient errors), `ScriptedAgent` (offline).
-- `llm.py`: OpenAI-compatible client. `LLM_*` env vars; `AGENT_*` / `JUDGE_*` override per role.
+- `llm.py`: OpenAI-compatible client. `API_KEY` / `API_BASE_URL` / `MODEL_NAME` (else the original `LLM_*`); `AGENT_*` / `JUDGE_*` override per role (`<ROLE>_MODEL_NAME` or `<ROLE>_MODEL`).
+- `api.py`: the deployed showcase API (Cloud Run): results overview + live attack runner, one merchant ledger per run (`X-Ledger`). `web/` is its Vite + React UI (Vercel). `app.py` is not deployed.
 - `merchant.py`: FastAPI test server on port 8402: legit shops, attack routes, `/custom/*` (user-built attacks), `/ledger` (ground truth).
 - `eval.py`: runs cases.json in modes off/prompt/on, grades from the ledger, writes results.json + logs.jsonl.
 - `app.py`: Streamlit dashboard + live runner (How it works tab renders `docs/code_map.mmd`; the README embeds the same Mermaid, kept in sync by a test). `demo.py`: one case in the terminal.
