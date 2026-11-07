@@ -8,7 +8,7 @@ const PROJECT_CTA = {
   accentColor: '#2a78d6',
   headline: 'You out-scammed the demo!',
   description:
-    'You ran {count} live attacks, the limit for now. Each one runs a real AI agent twice and an AI intent check on every payment. Want to build AI safety tools like this? Join us and build projects like this.',
+    'Want to build AI that stops an agent from paying the wrong person? AI Lodge lets you ship AI that matters alongside a team, with a showcase to aim for.',
   programme: 'AI Lodge',
   programmeLink: 'https://www.smubia.com/ailodge',
   showcaseLink: 'https://www.smubia.com/Projects',
