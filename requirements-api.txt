@@ -5,3 +5,4 @@ httpx
 openai
 cryptography
 python-dotenv
+upstash-redis==1.8.0
