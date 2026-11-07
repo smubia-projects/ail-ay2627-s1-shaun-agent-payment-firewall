@@ -1,0 +1,20 @@
+# Allowlist: only what api.py imports and reads. Everything else (app.py, onchain_proof.py, testnet_settle.py,
+# phone_approver.py, signer_service.py, eval tooling, web/, .keys/, .env) stays out of the image.
+*
+!requirements-api.txt
+!api.py
+!rate_limit.py
+!rate_limit_engine.py
+!llm.py
+!agent.py
+!gateway.py
+!policy.py
+!judge.py
+!signer.py
+!keys.py
+!merchant.py
+!eval.py
+!approver.py
+!cases.json
+!calibration.json
+!results_haiku.json
