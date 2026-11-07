@@ -1,15 +1,16 @@
 """Firewall gateway: the agent's only path to the network and the wallet.
 Intercepts HTTP 402, runs policy engine + intent judge, and only then asks the signer to sign."""
-import json, time, httpx
+import json, os, time, httpx
 import policy, judge as judge_mod
 
-LOG_PATH = "logs.jsonl"
+LOG_PATH = os.environ.get("GATEWAY_LOG", "logs.jsonl")  # "" = keep decisions in memory only (the demo API)
 
 
 class Gateway:
     def __init__(self, mandate, signer, base_url="http://127.0.0.1:8402", firewall=True,
-                 approve_fn=None, case_id=None):
+                 approve_fn=None, case_id=None, http=None):
         self.mandate, self.signer, self.base = mandate, signer, base_url
+        self.http = http or httpx  # anything with httpx's get(); the demo API passes an in-process client
         self.firewall = firewall
         self.approve_fn = approve_fn or (lambda accepted, reasons: False)  # no human present -> deny
         self.case_id = case_id
@@ -19,8 +20,9 @@ class Gateway:
     def _log(self, entry):
         entry.update(case=self.case_id, firewall=self.firewall, ts=time.time())
         self.decisions.append(entry)
-        with open(LOG_PATH, "a") as f:
-            f.write(json.dumps(entry, default=str) + "\n")
+        if LOG_PATH:
+            with open(LOG_PATH, "a") as f:
+                f.write(json.dumps(entry, default=str) + "\n")
 
     def _url(self, path):
         """Normalise whatever path the model produced: 'researchhub/x', '/researchhub/x' or a full URL."""
@@ -34,7 +36,7 @@ class Gateway:
 
     # Tool 1: read a page. Never pays.
     def fetch_page(self, path):
-        r = httpx.get(self._url(path), timeout=10)
+        r = self.http.get(self._url(path), timeout=10)
         if r.status_code == 402:
             a = r.json()["accepts"][0]
             return (f"[402 PAYMENT REQUIRED] merchant={a.get('merchantId')} amount={a['maxAmountRequired']} "
@@ -44,7 +46,7 @@ class Gateway:
 
     # Tool 2: fetch a paid resource. All payments go through here.
     def paid_fetch(self, path):
-        r = httpx.get(self._url(path), timeout=10)
+        r = self.http.get(self._url(path), timeout=10)
         if r.status_code != 402:
             return r.text
         accepted = r.json()["accepts"][0]
@@ -90,5 +92,5 @@ class Gateway:
         self.state["payments"] += 1
         self.state["paid_resources"].add(accepted["resource"])
         self._log(entry)
-        r2 = httpx.get(self._url(path), headers={"X-PAYMENT": header}, timeout=10)
+        r2 = self.http.get(self._url(path), headers={"X-PAYMENT": header}, timeout=10)
         return r2.text if r2.status_code == 200 else f"[payment sent but merchant returned {r2.status_code}]"
