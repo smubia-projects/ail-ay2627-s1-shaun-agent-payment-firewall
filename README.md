@@ -27,7 +27,7 @@ is checked by deterministic rules and an LLM intent checker before a separate si
 >
 > **Live outcomes vary by model and run.** The headline table below is the committed evaluation (Claude Haiku as
 > agent and judge, full step budget). A live attack on the demo uses whatever models the deployment sets
-> (`AGENT_MODEL_NAME`, default `deepseek-v4-flash`; `JUDGE_MODEL_NAME`, default Claude Haiku as calibrated) and may not reproduce it: an agent may refuse a scam on its own, or the
+> (`AGENT_MODEL_NAME`, default `deepseek-v4-1-flash-260910`; `JUDGE_MODEL_NAME`, default Claude Haiku as calibrated) and may not reproduce it: an agent may refuse a scam on its own, or the
 > judge may vote differently.
 
 ### Results at a glance

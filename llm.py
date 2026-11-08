@@ -34,9 +34,9 @@ def client(role=None):
     return OpenAI(api_key=_get(role, "API_KEY"), base_url=_get(role, "BASE_URL", DEFAULT_BASE_URL))
 
 
-# Club default for text is deepseek-v4-flash. The intent judge keeps Claude Haiku: its thresholds were calibrated on
+# Club default for text is deepseek-v4-1-flash-260910. The intent judge keeps Claude Haiku: its thresholds were calibrated on
 # Haiku (calibration.json), so another judge model would change the firewall's evaluated verdicts.
-DEFAULT_MODEL = "deepseek-v4-flash"
+DEFAULT_MODEL = "deepseek-v4-1-flash-260910"
 DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001"
 
 
@@ -45,6 +45,10 @@ def model(role=None):
 
 
 def extra(role):
-    """Extra request parameters for one role, e.g. {"reasoning_effort": "none"} from AGENT_REASONING_EFFORT."""
+    """Extra request parameters for one role, e.g. {"reasoning_effort": "none"} from AGENT_REASONING_EFFORT.
+    A DeepSeek model gets reasoning_effort "none" unless the role sets one: it thinks first by default, and a live
+    attack runs the agent twice for up to AGENT_MAX_STEPS turns inside one request."""
     v = os.environ.get(f"{role.upper()}_REASONING_EFFORT") if role else None
+    if not v and "deepseek" in model(role).lower():
+        v = "none"
     return {"reasoning_effort": v} if v else {}

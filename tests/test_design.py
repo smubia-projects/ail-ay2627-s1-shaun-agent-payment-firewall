@@ -37,7 +37,13 @@ def test_readme_code_map_matches_source():
 def test_reasoning_effort_is_per_role_and_never_leaks(monkeypatch):
     import llm
     monkeypatch.delenv("AGENT_REASONING_EFFORT", raising=False)
+    monkeypatch.setenv("AGENT_MODEL_NAME", "gpt-test")
+    monkeypatch.setenv("JUDGE_MODEL_NAME", "claude-haiku-4-5-20251001")
     monkeypatch.setenv("LLM_REASONING_EFFORT", "none")  # must NOT apply to anyone: no LLM_* fallback
     assert llm.extra("agent") == {} and llm.extra("judge") == {}
     monkeypatch.setenv("AGENT_REASONING_EFFORT", "none")
+    assert llm.extra("agent") == {"reasoning_effort": "none"} and llm.extra("judge") == {}
+    # A DeepSeek agent gets thinking switched off by default; the judge is untouched.
+    monkeypatch.delenv("AGENT_REASONING_EFFORT")
+    monkeypatch.setenv("AGENT_MODEL_NAME", "deepseek-v4-1-flash-260910")
     assert llm.extra("agent") == {"reasoning_effort": "none"} and llm.extra("judge") == {}
