@@ -11,7 +11,7 @@ const PROJECT_CTA = {
     'Want to build AI that stops an agent from paying the wrong person? AI Lodge lets you ship AI that matters alongside a team, with a showcase to aim for.',
   programme: 'AI Lodge',
   programmeLink: 'https://www.smubia.com/ailodge',
-  showcaseLink: 'https://www.smubia.com/Projects',
+  showcaseLink: 'https://www.smubia.com/projects',
   githubLink: 'https://github.com/smubia-projects/ail-ay2627-s1-shaun-agent-payment-firewall',
 };
 

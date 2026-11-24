@@ -106,7 +106,7 @@ export default function App() {
       <footer className="foot">
         Built by Shaun Pan at the AI Lodge hackathon ·{' '}
         <a href="https://www.smubia.com/ailodge" target="_blank" rel="noopener noreferrer">Join AI Lodge</a> ·{' '}
-        <a href="https://www.smubia.com/Projects" target="_blank" rel="noopener noreferrer">Explore other projects</a> ·{' '}
+        <a href="https://www.smubia.com/projects" target="_blank" rel="noopener noreferrer">Explore other projects</a> ·{' '}
         <a href={REPO} target="_blank" rel="noopener noreferrer">View on GitHub</a>
       </footer>
     </main>
